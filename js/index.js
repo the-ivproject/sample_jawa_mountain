@@ -67,9 +67,8 @@ $(document).ready(function () {
                 geo.source.data.features.forEach(function (marker) {
                     new mapboxgl.Marker(marker)
                         .setLngLat(marker.geometry.coordinates)
-                        .addTo(map);
+                        .addTo(map)
                 })
-
             }
 
             map.on('style.load', function () {
@@ -80,7 +79,6 @@ $(document).ready(function () {
             map.on('load', function () {
                 document.getElementById('basemaps').addEventListener('change', function () {
                     map.setStyle(`mapbox://styles/mapbox/${this.value}`)
-                    console.log(this.value)
                 });
 
                 addDataLayer()
@@ -93,30 +91,30 @@ $(document).ready(function () {
                     }
                 })
 
-                // When a click event occurs on a feature in the csvData layer, open a popup at the
-                // location of the feature, with description HTML from its properties.
-                map.on('click', 'csvData', function (e) {
-                    var coordinates = e.features[0].geometry.coordinates.slice();
+                // // When a click event occurs on a feature in the csvData layer, open a popup at the
+                // // location of the feature, with description HTML from its properties.
+                // map.on('click', 'csvData', function (e) {
+                //     var coordinates = e.features[0].geometry.coordinates.slice();
+                //     console.log(coordinates)
+                //     //set popup text
+                //     //You can adjust the values of the popup to match the headers of your CSV.
+                //     // For example: e.features[0].properties.Name is retrieving information from the field Name in the original CSV.
+                //     var description =
+                //         `<h3 style="font-size:16px; font-weight:bold;text-align:center;border-bottom: 0.5px solid #ccc;padding: 18px;">${"ID: " + e.features[0].properties.id + ' - ' + e.features[0].properties.preview_name}</h3><img id="imageshow" width="100%" style="border-style:none;" src="${e.features[0].properties.thumb}"></img><button id="highres" class="btn btn-primary" onclick="window.open('${e.features[0].properties.image_link}')">High Resolution</button>`;
 
-                    //set popup text
-                    //You can adjust the values of the popup to match the headers of your CSV.
-                    // For example: e.features[0].properties.Name is retrieving information from the field Name in the original CSV.
-                    var description =
-                        `<h3 style="font-size:16px; font-weight:bold;text-align:center;border-bottom: 0.5px solid #ccc;padding: 18px;">${"ID: " + e.features[0].properties.id + ' - ' + e.features[0].properties.preview_name}</h3><img id="imageshow" width="100%" style="border-style:none;" src="${e.features[0].properties.thumb}"></img><button id="highres" class="btn btn-primary" onclick="window.open('${e.features[0].properties.image_link}')">High Resolution</button>`;
+                //     // Ensure that if the map is zoomed out such that multiple
+                //     // copies of the feature are visible, the popup appears
+                //     // over the copy being pointed to.
+                //     while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                //         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                //     }
 
-                    // Ensure that if the map is zoomed out such that multiple
-                    // copies of the feature are visible, the popup appears
-                    // over the copy being pointed to.
-                    while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-                    }
-
-                    //add Popup to map
-                    new mapboxgl.Popup()
-                        .setLngLat(coordinates)
-                        .setHTML(description)
-                        .addTo(map);
-                });
+                //     //add Popup to map
+                //     new mapboxgl.Popup()
+                //         .setLngLat(coordinates)
+                //         .setHTML(description)
+                //         .addTo(map);
+                // });
 
                 // Change the cursor to a pointer when the mouse is over the places layer.
                 map.on('mouseenter', 'csvData', function () {
