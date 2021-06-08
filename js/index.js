@@ -32,9 +32,9 @@ var map = new mapboxgl.Map({
     transformRequest: transformRequest
 });
 
-map.addControl(new mapboxgl.NavigationControl());
+map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 
-$(document).ready(function () {
+$(document).ready(() => {
     $.ajax({
         type: "GET",
         //YOUR TURN: Replace with csv export link
@@ -45,13 +45,13 @@ $(document).ready(function () {
         }
     });
 
-    function makeGeoJSON(csvData) {
+    let makeGeoJSON = csvData => {
         csv2geojson.csv2geojson(csvData, {
             latfield: 'Latitude',
             lonfield: 'Longitude',
             delimiter: ','
-        }, function (err, data) {
-            function addDataLayer() {
+        }, (err, data) => {
+            let addDataLayer = () => {
                 var geo = {
                     'id': 'csvData',
                     'type': 'circle',
@@ -64,72 +64,92 @@ $(document).ready(function () {
                         'circle-color': point_color
                     }
                 }
-                geo.source.data.features.forEach(function (marker) {
-                    new mapboxgl.Marker(marker)
+                geo.source.data.features.forEach(marker => {
+
+                    let m = document.createElement('div')
+                    m.className = 'marker'
+
+                    m.addEventListener('click', function () {
+                        let coor = marker.geometry.coordinates
+                        let info = `<h6>tes`
+                        new mapboxgl.Popup()
+                        .setLngLat(coor)
+                        .setHTML(info)
+                        .addTo(map);
+                    });
+                    new mapboxgl.Marker(m)
                         .setLngLat(marker.geometry.coordinates)
                         .addTo(map)
                 })
             }
 
-            map.on('style.load', function () {
+            map.on('style.load', () => {
                 // Triggered when `setStyle` is called.
                 if (data) addDataLayer();
             });
 
-            map.on('load', function () {
+            map.on('load', () => {
                 document.getElementById('basemaps').addEventListener('change', function () {
                     map.setStyle(`mapbox://styles/mapbox/${this.value}`)
                 });
 
                 addDataLayer()
 
-                map.on('data', function (e) {
-                    console.log(e)
+                map.on('data', e => {
                     if (e.dataType === 'source' && e.sourceId === 'composite') {
                         document.getElementById("loader").style.visibility = "hidden";
                         document.getElementById("overlay").style.visibility = "hidden";
                     }
                 })
 
-                // // When a click event occurs on a feature in the csvData layer, open a popup at the
-                // // location of the feature, with description HTML from its properties.
-                // map.on('click', 'csvData', function (e) {
-                //     var coordinates = e.features[0].geometry.coordinates.slice();
-                //     console.log(coordinates)
-                //     //set popup text
-                //     //You can adjust the values of the popup to match the headers of your CSV.
-                //     // For example: e.features[0].properties.Name is retrieving information from the field Name in the original CSV.
-                //     var description =
-                //         `<h3 style="font-size:16px; font-weight:bold;text-align:center;border-bottom: 0.5px solid #ccc;padding: 18px;">${"ID: " + e.features[0].properties.id + ' - ' + e.features[0].properties.preview_name}</h3><img id="imageshow" width="100%" style="border-style:none;" src="${e.features[0].properties.thumb}"></img><button id="highres" class="btn btn-primary" onclick="window.open('${e.features[0].properties.image_link}')">High Resolution</button>`;
-
-                //     // Ensure that if the map is zoomed out such that multiple
-                //     // copies of the feature are visible, the popup appears
-                //     // over the copy being pointed to.
-                //     while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                //         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-                //     }
-
-                //     //add Popup to map
-                //     new mapboxgl.Popup()
-                //         .setLngLat(coordinates)
-                //         .setHTML(description)
-                //         .addTo(map);
-                // });
-
                 // Change the cursor to a pointer when the mouse is over the places layer.
-                map.on('mouseenter', 'csvData', function () {
+                map.on('mouseenter', 'csvData', () => {
                     map.getCanvas().style.cursor = 'pointer';
                 });
 
                 // Change it back to a pointer when it leaves.
-                map.on('mouseleave', 'places', function () {
+                map.on('mouseleave', 'places', () => {
                     map.getCanvas().style.cursor = '';
                 });
 
-                var bbox = turf.bbox(data);
-                map.fitBounds(bbox, {
-                    padding: 200
-                });
+                for (let i in data.features) {
+                    let name = data.features[i].properties['Mountain Name']
+                    let coor = data.features[i].geometry.coordinates
+                    var opt = document.createElement('option');
+                    opt.value = name;
+                    opt.innerHTML = name;
+                    opt.value = coor.join()
+                    document.getElementById('inlineFormCustomSelect').appendChild(opt)
+                }
+
+                let UseBbox = () => {
+                    let bbox = turf.bbox(data);
+                    map.fitBounds(bbox, {
+                        padding: 200
+                    })
+                }
+
+                UseBbox()
+                                
+                document
+                    .getElementById('fitbound')
+                    .addEventListener('click', UseBbox);
+
+                let selOption = document.getElementById("inlineFormCustomSelect")
+
+                selOption.addEventListener('change', function (a) {
+                    let coor = (selOption[selOption.selectedIndex].value).split(",").map(a => {
+                        return parseFloat(a)
+                    })
+                    if (selOption.value === 'All') {
+                        UseBbox()
+                    } else {
+                        map.flyTo({
+                            center: coor,
+                            zoom: 11
+                        });
+                    }
+                })
             });
         });
     };

@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jawa Mountains</title>
-
+    <title>Java Mountains</title>
+    <link rel="shortcut icon" href="assets/conquer.png">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" />
     <!-- Google Fonts -->
@@ -14,7 +14,7 @@
     <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.5.0/mdb.min.css" rel="stylesheet" />
 
-    <link rel="stylesheet" href="css/nav.css">
+    <link rel="stylesheet" href="css/style.css">
     <script src='js/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.0.1/mapbox-gl.css' rel='stylesheet' />
     <script src='https://npmcdn.com/csv2geojson@latest/csv2geojson.js'></script>
@@ -32,44 +32,43 @@
     }
 
     .loader {
-    /* margin: -10px 0 0 -250px; */
-    /* height: 100px; */
-    /* width: 20%; */
-    position: fixed;
-    text-align: center;
-    padding: 1em;
-    top: 50%;
-    left: 50%;
-    /* margin: 0 auto 1em; */
-    z-index: 9999;
-  }
+        /* margin: -10px 0 0 -250px; */
+        /* height: 100px; */
+        /* width: 20%; */
+        position: fixed;
+        text-align: center;
+        padding: 1em;
+        top: 50%;
+        left: 50%;
+        /* margin: 0 auto 1em; */
+        z-index: 9999;
+    }
 
-  svg path,
-  svg rect {
-    fill: #1266f1;
-  }
+    svg path,
+    svg rect {
+        fill: #1266f1;
+    }
 
-  #overlay {
-    position: fixed;
-    /* Sit on top of the page content */
-    /* display: none; */
-    /* Hidden by default */
-    width: 100%;
-    /* Full width (cover the whole page) */
-    height: 100%;
-    /* Full height (cover the whole page) */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.15);
-    /* Black background with opacity */
-    z-index: 2;
-    /* Specify a stack order in case you're using a different order for other elements */
-    cursor: pointer;
-    /* Add a pointer on hover */
-  }
-
+    #overlay {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.15);
+        z-index: 0;
+        cursor: pointer;
+    }
+    .marker {
+        background-image: url('assets/pin.png');
+        background-size: cover;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
 </style>
 
 <body>
@@ -81,11 +80,10 @@
             <!-- Collapsible wrapper -->
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <a class="navbar-brand mt-2 mt-lg-0" href="#">
-                    <img src="assets/target.png" height="35" alt="" loading="lazy" />
+                    <img src="assets/conquer.png" height="35" alt="" loading="lazy" />
                 </a>
-                <h5 class="map-title">PARCEL OF WASHINGTON<span> Village of Jackson</span></h5>
+                <h5 class="map-title">Mountains Map<span> Java Island</span></h5>
             </div>
-            <img id="logo" src="assets/target.png" height="35" alt="" loading="lazy" />
             <!-- Right elements -->
             <div class="d-flex align-items-center">
                 <a class="btn btn-primary me-3">
@@ -97,7 +95,7 @@
 
                 <a class="dropdown-toggle d-flex align-items-center hidden-arrow me-3" href="#"
                     id="navbarDropdownMenuLink" role="button" data-mdb-toggle="dropdown" aria-expanded="false">
-                    <img src="https://mdbootstrap.com/img/new/avatars/2.jpg" class="rounded-circle" height="25" alt=""
+                    <img id="avatar" src="assets/conquer.png" class="rounded-circle" height="25" alt=""
                         loading="lazy" />
                 </a>
                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
@@ -118,53 +116,46 @@
         <div class="container-fluid">
             <!-- Right elements -->
             <div class="d-flex align-items-center">
-                <a onclick="ZoomIn()"><i class="fas fa-search-plus"></i></a>
-                <a onclick="ZoomOut()"><i class="fas fa-search-minus"></i></a>
-                <a onclick="FitBound()"><i class="fas fa-expand-arrows-alt"></i></a>
+                <!-- <a onclick="ZoomIn()"><i class="fas fa-search-plus"></i></a>
+                <a onclick="ZoomOut()"><i class="fas fa-search-minus"></i></a> -->
+                <a id="fitbound"><i class="fas fa-expand-arrows-alt"></i></a>
                 <div class="vl" style="height: 25px;width: 0px;"></div>
                 <div class="col-auto my-1">
+                    <label for="light-v10" style="font-weight:normal">Basemap :</label>
                     <select class="custom-select mr-sm-2" id="basemaps">
                         <option value="light-v10">Light</option>
                         <option value="satellite-v9">Satellite</option>
                         <option value="outdoors-v11">Outdoor</option>
                     </select>
                 </div>
+                <div class="vl" style="height: 25px;width: 0px;"></div>
                 <div class="col-auto my-1">
-                    <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" disabled>
-                        <option selected>Fly to......</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
+                    <label for="light-v10" style="font-weight:normal">Extent :</label>
+                    <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
+                        <option selected>Zoom to Extents</option>
                     </select>
                 </div>
             </div>
         </div>
     </nav>
     <!-- Navbar -->
-    <div id="map-properties" class="navbar navbar-expand-lg navbar-light bg-light">
+    <!-- <div id="map-properties" class="navbar navbar-expand-lg navbar-light bg-light">
         <form>
             <div class="form-row">
-                <h6>Parcel Information</h6>
-                <p class="legend-small">Village of Jackson - Washington</p>
+                <h6>Additional Layer</h6>
                 <p class="legend-disclaimer">This map just for example purpose.</p>
                 <div class="hl"></div>
             </div>
             <div class="form-row">
                 <div class="mb-3">
-                    <label for="validationDefault01">Parcel ID</label>
-                    <input type="text" class="form-control" id="parcelid" placeholder="No data....">
-                    <label for="validationDefault02">Parcel Date</label>
-                    <input type="text" class="form-control" id="parceldate" placeholder="No data....">
-                    <label for="validationDefault02">Parcel Owner</label>
-                    <input type="text" class="form-control" id="parcelowner" placeholder="No data....">
-                    <label for="validationDefault02">Site Address</label>
-                    <input type="text" class="form-control" id="parceladdress" placeholder="No data....">
-                    <label for="validationDefault02">Deed Acres</label>
-                    <input type="text" class="form-control" id="deedacres" placeholder="No data....">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked>
+                        <label class="form-check-label" for="flexSwitchCheckChecked">Checked switch checkbox input</label>
+                      </div>
                 </div>
             </div>
         </form>
-    </div>
+    </div> -->
 
     <button id="show-parcel" onclick="ParcelInfo()" class="btn btn-primary me-3"></i><i class="fas fa-table"
             style="font-size: 12px;"></i> Parcel Information </button>
